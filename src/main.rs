@@ -12,7 +12,7 @@ struct Zone  { head: u8, body: u8, tail: u8, name: String }
 
 const PIXEL_SIZE: u8 = 3;
 const MAX_INTENSITY: f32 = 100_f32;
-const UNIVERSE_SIZE: u16 = 510 * 3;
+const UNIVERSE_SIZE: u16 = 510;
 
 fn main() {
     let mut dmx_source = DmxSource::new("Controller").unwrap();
@@ -75,8 +75,13 @@ fn main() {
             }
             offset += (zone.head as usize + zone.body as usize + zone.tail as usize) * PIXEL_SIZE as usize;
         }
-        let output = copy.as_slice();
-        println!("{:?}", output);
+        let mut universes = Vec::new();
+        while copy.len() > UNIVERSE_SIZE as usize {
+            let u = copy.split_off(UNIVERSE_SIZE as usize);
+            universes.push(u);
+        }
+        universes.push(copy);
+        println!("{:?}", universes);
         sleep(refresh);
     }
 
