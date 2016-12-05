@@ -1,3 +1,5 @@
+#![feature(iter_arith)]
+
 use std::cmp::Ordering;
 use std::f32;
 use std::thread::sleep;
@@ -15,7 +17,7 @@ const MAX_INTENSITY: f32 = 100_f32;
 const UNIVERSE_SIZE: u16 = 510;
 
 fn main() {
-    let mut dmx_source = DmxSource::new("Controller").unwrap();
+    let dmx_source = DmxSource::new("Controller").unwrap();
 
     let refresh = Duration::new(0, 200_000_000);
     
@@ -81,7 +83,12 @@ fn main() {
             universes.push(u);
         }
         universes.push(copy);
-        println!("{:?}", universes);
+        let mut universe: u16 = 1;
+        while let Some(u) = universes.pop() {
+            //println!("{}: {:?}", universe,  &u);
+            dmx_source.send(universe, &u);
+            universe += 1;
+        }
         sleep(refresh);
     }
 
@@ -89,7 +96,7 @@ fn main() {
     // ...
 
     // terminate the stream for a specific universe
-    //dmx_source.terminate_stream(1);
+    dmx_source.terminate_stream(1);
 }
 
 fn wave_value (f: &Wave, t: u32, max_amp: f32) -> u8 {
